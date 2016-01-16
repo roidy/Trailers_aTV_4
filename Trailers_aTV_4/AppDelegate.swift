@@ -1,20 +1,43 @@
 //
 //  AppDelegate.swift
-//  Trailers_aTV_4
+//  Trailers
 //
-//  Created by Robert Parnell on 16/01/2016.
-//  Copyright © 2016 roidy. All rights reserved.
+//  Created by Robert Parnell on 15/01/2016.
+//  Copyright © 2016 Robert Parnell. All rights reserved.
 //
 
 import UIKit
+import TVMLKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, TVApplicationControllerDelegate {
 
     var window: UIWindow?
 
+    var appController: TVApplicationController?
+
+
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        let appControllerContext = TVApplicationControllerContext()
+        
+        let TVBaseURL = NSBundle.mainBundle().bundleURL.absoluteString
+        if let javaScriptURL = NSURL(string: TVBaseURL + "/js/App.js") {
+            appControllerContext.javaScriptApplicationURL = javaScriptURL
+        }
+        
+        appControllerContext.launchOptions["BASEURL"] = TVBaseURL
+        
+        if let launchOptions = launchOptions as? [String: AnyObject] {
+            for (kind, value) in launchOptions {
+                appControllerContext.launchOptions[kind] = value
+            }
+        }
+        
+        appController = TVApplicationController(context: appControllerContext, window: window, delegate: self)
+        
         // Override point for customization after application launch.
         return true
     }
@@ -40,7 +63,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
+    // ** TVApplicationControllerDelegate
+    func appController(appController: TVApplicationController, didFinishLaunchingWithOptions options: [String: AnyObject]?) {
+        print("\(__FUNCTION__) invoked with options: \(options)")
+    }
+    
+    func appController(appController: TVApplicationController, didFailWithError error: NSError) {
+        print("\(__FUNCTION__) invoked with error: \(error)")
+        
+        let title = "Error Launching Application"
+        let message = error.localizedDescription
+        let alertController = UIAlertController(title: title, message: message, preferredStyle:.Alert )
+        
+        self.appController?.navigationController.presentViewController(alertController, animated: true, completion: { () -> Void in
+            // ...
+        })
+    }
+    
+    func appController(appController: TVApplicationController, didStopWithOptions options: [String: AnyObject]?) {
+        print("\(__FUNCTION__) invoked with options: \(options)")
+    }
+    
+    func appController(appController: TVApplicationController, evaluateAppJavaScriptInContext jsContext: JSContext) {
+        let jsInterface: cJsInterface = cJsInterface();
+        jsContext.setObject(jsInterface, forKeyedSubscript: "swiftInterface")
+    }
+    
 }
 

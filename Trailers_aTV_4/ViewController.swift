@@ -1,9 +1,9 @@
 //
 //  ViewController.swift
-//  Trailers_aTV_4
+//  Trailers
 //
-//  Created by Robert Parnell on 16/01/2016.
-//  Copyright © 2016 roidy. All rights reserved.
+//  Created by Robert Parnell on 15/01/2016.
+//  Copyright © 2016 Robert Parnell. All rights reserved.
 //
 
 import UIKit
