@@ -24,25 +24,26 @@ var buildTrailerDetailPage = function(trailers, num) {
         <productTemplate theme="dark">
         <banner><heroImg src="` + justAddedJSON[num].poster.replace("poster", "poster-xlarge") + `" />
         <infoList><info>
-        <header><title>DIRECTOR</title></header>`
+        <header><title>DIRECTOR</title></header>`;
     
     var directors = justAddedJSON[num].directors.split(", ");
     for (a=0; a<directors.length; a++) {
         docString += `<text><![CDATA[` + directors[a] + `]]></text>`;
     }
     
-    docString += `
-        </info>
-        <info>
-        <header><title>STARRING</title></header>`
+    docString += `</info>`;
     
-    var actors = justAddedJSON[num].actors;
-    for (a=0; a<actors.length; a++) {
-        docString += `<text><![CDATA[` + actors[a] + `]]></text>`;
+    if (justAddedJSON[num].actors) {
+        docString += `<info><header><title>STARRING</title></header>`;
+        var actors = justAddedJSON[num].actors;
+        for (a=0; a<actors.length; a++) {
+            docString += `<text><![CDATA[` + actors[a] + `]]></text>`;
+        }
+    
+        docString += `</info>`;
     }
-    
+
     docString += `
-        </info>
         </infoList>
         <stack>
         <title>` + justAddedJSON[num].title + `</title>
