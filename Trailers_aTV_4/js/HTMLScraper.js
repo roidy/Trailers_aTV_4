@@ -44,7 +44,7 @@ function scrapeHTML(htmlData) {
 
 // Very unsafe string extractor
 // Looks for (start) and (end) strings
-// ans extracts the string inbetween
+// and extracts the string inbetween
 
 function extractString(start, end, string) {
     // Very unsafe :(

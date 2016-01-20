@@ -48,7 +48,7 @@ function loadJSONData() {
 function makeSpinnerPage(message) {
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><loadingTemplate>
-    <activityIndicator><title>${message}</title></activityIndicator>
+        <activityIndicator><title>${message}</title></activityIndicator>
         </loadingTemplate></document>`;
     
     var parser = new DOMParser();
@@ -81,3 +81,6 @@ function onSelect(event) {
 }
 
 // <![CDATA[]> Helper function
+function cData(string) {
+    return '<![CDATA[' + string + ']]>';
+}

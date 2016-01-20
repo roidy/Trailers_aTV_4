@@ -7,11 +7,11 @@ function trailerDetailPage(num) {
     navigationDocument.pushDocument(loadingDoc);
     
     item = parseInt(num)
-    loadHTML(justAddedJSON[item].location, num);
+    loadHTML(justAddedJSON[num].location, num);
 }
 
 // Build the Detail page
-var buildTrailerDetailPage = function(trailers, num) {
+function buildTrailerDetailPage(trailers, num) {
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><head><style>
         .showTextOnHighlight {
@@ -28,7 +28,7 @@ var buildTrailerDetailPage = function(trailers, num) {
     
     var directors = justAddedJSON[num].directors.split(", ");
     for (a=0; a<directors.length; a++) {
-        docString += `<text><![CDATA[` + directors[a] + `]]></text>`;
+        docString += `<text>` + cData(directors[a]) + `</text>`;
     }
     
     docString += `</info>`;
@@ -37,7 +37,7 @@ var buildTrailerDetailPage = function(trailers, num) {
         docString += `<info><header><title>STARRING</title></header>`;
         var actors = justAddedJSON[num].actors;
         for (a=0; a<actors.length; a++) {
-            docString += `<text><![CDATA[` + actors[a] + `]]></text>`;
+            docString += `<text>` + cData(actors[a]) + `</text>`;
         }
     
         docString += `</info>`;
@@ -46,35 +46,36 @@ var buildTrailerDetailPage = function(trailers, num) {
     docString += `
         </infoList>
         <stack>
-        <title>` + justAddedJSON[num].title + `</title>
+        <title>` + cData(justAddedJSON[num].title) + `</title>
         <row>
-        <text>` + justAddedJSON[num].studio + ` • ` + justAddedJSON[num].genre[0]
+        <text>` + cData(justAddedJSON[num].studio) + `  •  ` + justAddedJSON[num].genre[0]
     
     if (justAddedJSON[num].releasedate) {
-        docString += ` • ` + justAddedJSON[num].releasedate.split(",")[1].split("00:")[0].trim()
+        docString += `  •  ` + cData(justAddedJSON[num].releasedate.split(",")[1].split("00:")[0].trim());
     }
     
     docString += `
         </text>
         </row>
-        <description allowsZooming="true" style="tv-text-max-lines: 7">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>
+        <description allowsZooming="true" style="tv-text-max-lines: 5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>
         
         </stack>
         </banner>
-        <shelf style="padding: 45 60 0 60">
+        <shelf style="padding: 45 60 0 60" autoHighlight="true">
         <section>`
         
     for(a=0; a<trailers.length; a++) {
         docString += `<lockup onSelect="videoPlayer.play('` + trailers[a].url + `')">
             <img src="` + trailers[a].image + `" width="320" height="180" />
-            <title>` + trailers[a].title + ` (` + trailers[a].runtime + `)</title>
+            <title>` + cData(trailers[a].title) + ` (` + cData(trailers[a].runtime) + `)</title>
             </lockup>`
         }
     
-    docString += `</section>
+    docString += `
+        </section>
         </shelf>
         </productTemplate>
-    </document>`;
+        </document>`;
     
     var parser = new DOMParser();
     var detailDoc = parser.parseFromString(docString, "application/xml");

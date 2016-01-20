@@ -21,7 +21,7 @@ function mainPage() {
         docString += `<lockup onSelect="trailerDetailPage('` + a.toString() + `')"><img src="`;
         docString += justAddedJSON[a].poster.replace("poster", "poster-xlarge");
         docString += `" width="250" height="375" />
-        <title class="showAndScrollTextOnHighlight"><![CDATA[` + justAddedJSON[a].title + `]]></title>
+        <title class="showAndScrollTextOnHighlight">` + cData(justAddedJSON[a].title) + `</title>
         </lockup>`;
     }
     
