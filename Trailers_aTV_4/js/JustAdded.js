@@ -11,7 +11,7 @@ function mainPage() {
         </head>
         <stackTemplate>
         <banner>
-        <title>Apple Trailers - Just Added</title>
+        <title>Just Added</title>
         </banner>
         <collectionList>
         <grid>
