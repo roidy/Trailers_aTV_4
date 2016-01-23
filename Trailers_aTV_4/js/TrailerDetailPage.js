@@ -1,16 +1,82 @@
+//
+//  TrailerDetailPage.js
+//  Trailers
+//
+//  Created by Robert Parnell on 15/01/2016.
+//  Copyright © 2016 Robert Parnell. All rights reserved.
+//  See Licence.txt for more details
+//
+
 var loadingDoc; // Global loadingDoc
 
 // Display Spinner and start scraping
-function trailerDetailPage(num) {
+function trailerDetailPage(json) {
     loadingDoc = makeSpinnerPage("Loading Details...");
     navigationDocument.pushDocument(loadingDoc);
-    loadHTML(justAddedJSON[num].location, num);
+    
+    var itemJSON = JSON.parse(decodeURIComponent(json));
+
+    // Load and scrape trailers HTML page
+    url = "http://movietrailers.apple.com" + itemJSON.location + "includes/playlists/itunes.inc"
+    var req = new XMLHttpRequest();
+    
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            var trailerHTML = req.responseText;
+            allClips = scrapeHTML(trailerHTML);
+            buildTrailerDetailPage(json, allClips);
+        }
+    }
+    req.open("GET", url, true);
+    req.send();
 }
 
-// Build the Detail page
-function buildTrailerDetailPage(trailers, num) {
+// Simple HTML scraper
+// Grab all the trailers from an iTunes.inc
+// playlist HTML page
+function scrapeHTML(trailerHTML) {
+    var trailers = [];
+    var item = 1;
     
-    var trailerJSON = justAddedJSON[num];
+    trailerHTML = trailerHTML.split("<div class='col left'>");
+    
+    while(true) {
+        var t = extractString('"title":"', '", ', trailerHTML[item]);
+        var i = extractString("<img src='", ".jpg", trailerHTML[item]) + ".jpg";
+        var u = extractString('"url":"', '", ', trailerHTML[item]).replace("720p", "1080p");
+        var r = extractString('"runtime":"', '", ', trailerHTML[item]);
+        
+        if (!t || !i || !u) {break;}
+        
+        trailers.push({title: t, image: i, url: u, runtime: r});
+        item += 1;
+    }
+    return trailers;
+    
+}
+
+// Very unsafe string extractor
+// Looks for (start) and (end) strings
+// and extracts the string inbetween
+
+function extractString(start, end, string) {
+    // Very unsafe :(
+    try {
+        tempStr = string.split(start);
+        endVal = tempStr[1].indexOf(end);
+        return tempStr[1].substring(0, endVal);
+    }
+    catch(err) {
+        return "";
+    }
+}
+
+//
+// Build the Detail page
+//
+function buildTrailerDetailPage(trailerJSON, allClips) {
+    
+    var trailerJSON = JSON.parse(decodeURIComponent(trailerJSON));
     
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><head><style>
@@ -73,10 +139,10 @@ function buildTrailerDetailPage(trailers, num) {
         <shelf style="padding: 45 60 0 60">
         <section>`;
         
-    for(a=0; a<trailers.length; a++) {
-        docString += `<lockup onSelect="videoPlayer.play('` + trailers[a].url + `')">
-            <img src="` + trailers[a].image + `" width="320" height="180" />
-            <title>` + cData(trailers[a].title) + ` (` + cData(trailers[a].runtime) + `)</title>
+    for(a=0; a<allClips.length; a++) {
+        docString += `<lockup onSelect="videoPlay('` + allClips[a].url + `')">
+            <img src="` + allClips[a].image + `" width="320" height="180" />
+            <title>` + cData(allClips[a].title) + ` (` + cData(allClips[a].runtime) + `)</title>
             </lockup>`;
         }
     
@@ -89,5 +155,5 @@ function buildTrailerDetailPage(trailers, num) {
     var parser = new DOMParser();
     var detailDoc = parser.parseFromString(docString, "application/xml");
     detailDoc.addEventListener("select", onSelect.bind());
-    navigationDocument.pushDocument(detailDoc);
+    navigationDocument.replaceDocument(detailDoc, loadingDoc);
 }

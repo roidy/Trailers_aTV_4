@@ -1,3 +1,15 @@
+//
+//  Search.js
+//  Trailers
+//
+//  Created by Robert Parnell on 15/01/2016.
+//  Copyright © 2016 Robert Parnell. All rights reserved.
+//  See Licence.txt for more details
+//
+
+//
+// Create and display the search page
+//
 function loadSearchPage(menuItem, feature) {
     var docString = `<?mxl version="1.0" encoding="UTF-8" ?>
         <document><searchTemplate>
@@ -15,6 +27,9 @@ function loadSearchPage(menuItem, feature) {
     feature.setDocument(searchDoc, menuItem);
 }
 
+//
+// Initialize the search and hook up keyboard handler
+//
 function initSearch(event) {
     var searchPageDoc = event.target;
     var searchField = searchPageDoc.getElementByTagName("searchField");
@@ -26,6 +41,9 @@ function initSearch(event) {
     }
 }
 
+//
+// Do a search, call on every character entered
+//
 function doSearch(query, searchPageDoc) {
     var url = "http://movietrailers.apple.com/trailers/home/scripts/quickfind.php?q=" + query.replace(" ", "+");
     var req = new XMLHttpRequest();
@@ -40,6 +58,9 @@ function doSearch(query, searchPageDoc) {
     req.send();
 }
 
+//
+// Update the results
+//
 function showResults(resultsJSON, searchPageDoc) {
     // Build new xml from results, only use the first 20 results
     

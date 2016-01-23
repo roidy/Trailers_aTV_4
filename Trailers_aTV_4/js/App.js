@@ -1,14 +1,20 @@
-// Global Just Added JSON data
-var justAddedJSON;
-var searchResultsJSON;
+//
+//  App.js
+//  Trailers
+//
+//  Created by Robert Parnell on 15/01/2016.
+//  Copyright © 2016 Robert Parnell. All rights reserved.
+//  See Licence.txt for more details
+//
 
+var justAddedJSON; // Global Just Added JSON data
 
+//
 // Main App Entry Point
+//
 App.onLaunch = function(options) {
     // Load and evaluate JavaScript files
     var jsFiles = [`${options.BASEURL}js/JustAdded.js`,
-                   `${options.BASEURL}js/VideoPlayer.js`,
-                   `${options.BASEURL}js/HTMLScraper.js`,
                    `${options.BASEURL}js/TrailerDetailPage.js`,
                    `${options.BASEURL}js/Search.js`];
     
@@ -19,7 +25,9 @@ App.onLaunch = function(options) {
                 });
 }
 
+//
 // Main menu bar
+//
 function mainMenuBar() {
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><menuBarTemplate><menuBar>
@@ -36,7 +44,9 @@ function mainMenuBar() {
     navigationDocument.pushDocument(menuDoc);
 }
 
+//
 // Menu bar section loader
+//
 function loadMenuSection(event) {
     var menuItem = event.target;
     var id = menuItem.getAttribute("id");
@@ -47,9 +57,12 @@ function loadMenuSection(event) {
     }
 }
 
+//
 // Open and parse Apples Just Added JSON trailer feed
+//
 function loadJSONData(menuItem, feature) {
     if (justAddedJSON) {
+        log("JustAdded JSON already loaded.");
         return; // JSON already loaded and the page exists, so just return and let aTV handle page display
     }
     
@@ -61,7 +74,7 @@ function loadJSONData(menuItem, feature) {
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
             justAddedJSON = JSON.parse(req.responseText);
-            var justAdded = mainPage(); // Create Main page
+            var justAdded = buildJustAddedPage(justAddedJSON); // Create Main page
             feature.setDocument(justAdded, menuItem);
         }
     }
@@ -73,6 +86,17 @@ function loadJSONData(menuItem, feature) {
 //
 // Helper Functions
 //
+
+// Simple Video Player
+function videoPlay(url) {
+    var mediaItem = new MediaItem("video", url);
+    var player = new Player();
+    var playlist = new Playlist();
+    
+    player.playlist = playlist;
+    player.playlist.push(mediaItem);
+    player.present();
+}
 
 // Create a Loading Spinner Document
 function makeSpinnerPage(message) {
@@ -98,15 +122,11 @@ function log() {
 
 // onSelect event handler
 function onSelect(event) {
-    //this.event = event;
     var elem = event.target;
     
     if (elem) {
-        var id = elem.getAttribute("id");
-        var onSelect = elem.getAttribute("onSelect");  // get onSelect=...
-        with (event) {
-            eval(onSelect);
-        }
+        var onSelect = elem.getAttribute("onSelect");
+        eval(onSelect);
     }
 }
 
