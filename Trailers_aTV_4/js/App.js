@@ -26,6 +26,15 @@ App.onLaunch = function(options) {
 }
 
 //
+// On app resume reload the app
+// so we pull in new JSON data
+//
+
+App.onResume = function(options) {
+    App.reload();
+}
+
+//
 // Main menu bar
 //
 function mainMenuBar() {
