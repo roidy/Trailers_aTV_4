@@ -62,8 +62,6 @@ function doSearch(query, searchPageDoc) {
 // Update the results
 //
 function showResults(resultsJSON, searchPageDoc) {
-    // Build new xml from results, only use the first 20 results
-    
     docString = `<results><grid><section>`;
     
     for(a=0; a<resultsJSON.results.length; a++) {

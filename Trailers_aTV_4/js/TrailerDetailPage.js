@@ -14,17 +14,34 @@ function trailerDetailPage(json) {
     loadingDoc = makeSpinnerPage("Loading Details...");
     navigationDocument.pushDocument(loadingDoc);
     
-    var itemJSON = JSON.parse(decodeURIComponent(json));
+    var trailerJSON = JSON.parse(decodeURIComponent(json));
 
-    // Load and scrape trailers HTML page
-    url = "http://movietrailers.apple.com" + itemJSON.location + "includes/playlists/itunes.inc"
+    // Load and scrape trailers HTML page for description
+    var url = "http://movietrailers.apple.com" + trailerJSON.location
+    var req = new XMLHttpRequest();
+    
+    req.onreadystatechange = function () {
+        if (req.readyState == 4) {
+            trailerJSON.description = extractString('<meta name="Description" content="', '" />', req.responseText);
+            scrapeiTunesPlaylist(trailerJSON);
+        }
+    }
+    req.open("GET", url, true);
+    req.send();
+}
+
+//
+// Scrape the iTunes Playlist to get all the clips
+//
+function scrapeiTunesPlaylist(trailerJSON) {
+    url = "http://movietrailers.apple.com" + trailerJSON.location + "includes/playlists/itunes.inc"
     var req = new XMLHttpRequest();
     
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
             var trailerHTML = req.responseText;
             allClips = scrapeHTML(trailerHTML);
-            buildTrailerDetailPage(json, allClips);
+            buildTrailerDetailPage(trailerJSON, allClips);
         }
     }
     req.open("GET", url, true);
@@ -75,9 +92,6 @@ function extractString(start, end, string) {
 // Build the Detail page
 //
 function buildTrailerDetailPage(trailerJSON, allClips) {
-    
-    var trailerJSON = JSON.parse(decodeURIComponent(trailerJSON));
-    
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><head><style>
         .showTextOnHighlight {
@@ -132,8 +146,9 @@ function buildTrailerDetailPage(trailerJSON, allClips) {
     docString += `
         </text>
         </row>
-        <description allowsZooming="true" style="tv-text-max-lines: 7">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>
-        
+        <description allowsZooming="true" style="tv-text-max-lines: 7"
+    onSelect="fullDescription('` + trailerJSON.description.replaceAll("'", "") + `');">`;
+    docString += cData(decodeEntities(trailerJSON.description)) + `</description>
         </stack>
         </banner>
         <shelf style="padding: 45 60 0 60">
@@ -151,9 +166,39 @@ function buildTrailerDetailPage(trailerJSON, allClips) {
         </shelf>
         </productTemplate>
         </document>`;
-    
+
     var parser = new DOMParser();
     var detailDoc = parser.parseFromString(docString, "application/xml");
     detailDoc.addEventListener("select", onSelect.bind());
     navigationDocument.replaceDocument(detailDoc, loadingDoc);
+}
+
+//
+// Show full description
+//
+function fullDescription(description) {
+    docString = `<?xml version="1.0" encoding="UTF-8" ?>
+        <document><descriptiveAlertTemplate>`;
+    docString +=  `<description>`;
+    docString += cData(decodeEntities(decodeURIComponent(description))) + `</description>`;
+    docString += `<button onSelect="navigationDocument.dismissModal();"><text>Back</text></button>`;
+    docString += `</descriptiveAlertTemplate></document>`;
+    
+    var parser = new DOMParser();
+    var fullDesc = parser.parseFromString(docString, "application/xml");
+    fullDesc.addEventListener("select", onSelect.bind());
+    navigationDocument.presentModal(fullDesc);
+}
+
+//
+// Major hack to easily decode escaped characters
+// &amp; &quot; etc....
+// Write tham into a documents element and
+// when read back they are decoded automatically :)
+//
+function decodeEntities(encodedString) {
+    var parser = new DOMParser();
+    var decodeDoc = parser.parseFromString('<document id="decode"></document>', 'application/xml');
+    decodeDoc.getElementById("decode").innerHTML = encodedString;
+    return decodeDoc.getElementById("decode").innerHTML;
 }
