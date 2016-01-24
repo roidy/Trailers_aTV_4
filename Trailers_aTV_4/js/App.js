@@ -71,7 +71,6 @@ function loadMenuSection(event) {
 //
 function loadJSONData(menuItem, feature) {
     if (justAddedJSON) {
-        log("JustAdded JSON already loaded.");
         return; // JSON already loaded and the page exists, so just return and let aTV handle page display
     }
     

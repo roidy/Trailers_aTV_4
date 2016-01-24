@@ -65,7 +65,7 @@ function showResults(resultsJSON, searchPageDoc) {
     docString = `<results><grid><section>`;
     
     for(a=0; a<resultsJSON.results.length; a++) {
-        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(resultsJSON.results[a])) + `')"><img src="http://movietrailers.apple.com`;
+        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(resultsJSON.results[a])).replace("'", "") + `')"><img src="http://movietrailers.apple.com`;
         docString += resultsJSON.results[a].poster.replace("poster", "poster-xlarge");
         docString += `" width="250" height="375" />
             <title>` + cData(resultsJSON.results[a].title) + `</title>

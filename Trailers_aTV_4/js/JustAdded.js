@@ -27,7 +27,7 @@ function buildJustAddedPage(justaddedJSON) {
         <section>`;
     
     for (a=0; a<justAddedJSON.length; a++) {
-        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(justAddedJSON[a])) + `')">`;
+        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(justAddedJSON[a])).replace("'","") + `')">`;
         docString += `<img src="` + justAddedJSON[a].poster.replace("poster", "poster-xlarge");
         docString += `" width="250" height="375" />
         <title class="showAndScrollTextOnHighlight">` + cData(justAddedJSON[a].title) + `</title>
@@ -40,7 +40,7 @@ function buildJustAddedPage(justaddedJSON) {
         </collectionList>
         </stackTemplate>
         </document>`;
-    
+
     var parser = new DOMParser();
     var mainDoc = parser.parseFromString(docString, "application/xml");
     mainDoc.addEventListener("select", onSelect.bind());

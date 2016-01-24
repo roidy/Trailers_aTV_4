@@ -147,7 +147,7 @@ function buildTrailerDetailPage(trailerJSON, allClips) {
         </text>
         </row>
         <description allowsZooming="true" style="tv-text-max-lines: 7"
-    onSelect="fullDescription('` + trailerJSON.description.replaceAll("'", "") + `');">`;
+    onSelect="fullDescription('` + encodeURIComponent(trailerJSON.description).replaceAll("'", "") + `');">`;
     docString += cData(decodeEntities(trailerJSON.description)) + `</description>
         </stack>
         </banner>
@@ -191,14 +191,10 @@ function fullDescription(description) {
 }
 
 //
-// Major hack to easily decode escaped characters
-// &amp; &quot; etc....
-// Write tham into a documents element and
-// when read back they are decoded automatically :)
+// Decode escaped characters
 //
 function decodeEntities(encodedString) {
-    var parser = new DOMParser();
-    var decodeDoc = parser.parseFromString('<document id="decode"></document>', 'application/xml');
-    decodeDoc.getElementById("decode").innerHTML = encodedString;
-    return decodeDoc.getElementById("decode").innerHTML;
+    var temp = encodedString.replaceAll("&amp;", "&");
+    temp = temp.replaceAll("&quot;", '"');
+    return temp;
 }
