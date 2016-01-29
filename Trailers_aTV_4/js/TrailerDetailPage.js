@@ -181,7 +181,6 @@ function fullDescription(description) {
         <document><descriptiveAlertTemplate>`;
     docString +=  `<description>`;
     docString += cData(decodeEntities(decodeURIComponent(description))) + `</description>`;
-    docString += `<button onSelect="navigationDocument.dismissModal();"><text>Back</text></button>`;
     docString += `</descriptiveAlertTemplate></document>`;
     
     var parser = new DOMParser();

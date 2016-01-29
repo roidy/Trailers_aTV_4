@@ -1,5 +1,5 @@
 //
-//  JustAdded.js
+//  BuildPage.js
 //  Trailers
 //
 //  Created by Robert Parnell on 15/01/2016.
@@ -7,9 +7,8 @@
 //  See Licence.txt for more details
 //
 
-// Build Just Added Page
-
-function buildJustAddedPage(justaddedJSON) {
+// Build Section Page
+function buildPage(json, section) {
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document>
         <head>
@@ -18,19 +17,19 @@ function buildJustAddedPage(justaddedJSON) {
             tv-text-highlight-style: marquee-and-show-on-highlight;}
         </style>
         </head>
-        <stackTemplate>
+    <stackTemplate>
         <banner>
-        <title>Just Added</title>
+        <title>` + section + `</title>
         </banner>
         <collectionList>
         <grid>
         <section>`;
     
-    for (a=0; a<justAddedJSON.length; a++) {
-        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(justAddedJSON[a])).replace("'","") + `')">`;
-        docString += `<img src="` + justAddedJSON[a].poster.replace("poster", "poster-xlarge");
+    for (a=0; a<json.length; a++) {
+        docString += `<lockup onSelect="trailerDetailPage('` + encodeURIComponent(JSON.stringify(json[a])).replace("'","") + `')">`;
+        docString += `<img src="` + json[a].poster.replace("poster", "poster-xlarge");
         docString += `" width="250" height="375" />
-        <title class="showAndScrollTextOnHighlight">` + cData(justAddedJSON[a].title) + `</title>
+        <title class="showAndScrollTextOnHighlight">` + cData(json[a].title) + `</title>
         </lockup>`;
     }
     
@@ -47,4 +46,3 @@ function buildJustAddedPage(justaddedJSON) {
     
     return mainDoc;
 }
-

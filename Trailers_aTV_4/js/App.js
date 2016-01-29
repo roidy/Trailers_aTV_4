@@ -7,14 +7,12 @@
 //  See Licence.txt for more details
 //
 
-var justAddedJSON; // Global Just Added JSON data
-
 //
 // Main App Entry Point
 //
 App.onLaunch = function(options) {
     // Load and evaluate JavaScript files
-    var jsFiles = [`${options.BASEURL}js/JustAdded.js`,
+    var jsFiles = [`${options.BASEURL}js/BuildPage.js`,
                    `${options.BASEURL}js/TrailerDetailPage.js`,
                    `${options.BASEURL}js/Search.js`];
     
@@ -40,8 +38,12 @@ App.onResume = function(options) {
 function mainMenuBar() {
     var docString = `<?xml version="1.0" encoding="UTF-8" ?>
         <document><menuBarTemplate><menuBar>
-        <menuItem id="JustAdded" onSelect="loadMenuSection(event)">
+        <menuItem id="just_added" onSelect="loadMenuSection(event)">
         <title>Just Added</title></menuItem>
+        <menuItem id="exclusive" onSelect="loadMenuSection(event)">
+        <title>Exclusive</title></menuItem>
+        <menuItem id="most_pop" onSelect="loadMenuSection(event)">
+        <title>Most Popular</title></menuItem>
     
         <menuItem id="Search" onSelect="loadMenuSection(event)">
         <title>Search</title></menuItem>
@@ -61,29 +63,36 @@ function loadMenuSection(event) {
     var id = menuItem.getAttribute("id");
     var feature = menuItem.parentNode.getFeature("MenuBarDocument");
     if (feature) {
-        if (id == "JustAdded") {loadJSONData(menuItem, feature); }
-        if (id == "Search") {loadSearchPage(menuItem, feature); }
+        if (id == "Search") {
+            loadSearchPage(menuItem, feature);
+        } else {
+            loadJSONData(menuItem, feature, id);
+        }
     }
 }
 
 //
 // Open and parse Apples Just Added JSON trailer feed
 //
-function loadJSONData(menuItem, feature) {
-    if (justAddedJSON) {
-        return; // JSON already loaded and the page exists, so just return and let aTV handle page display
-    }
+function loadJSONData(menuItem, feature, section) {
+    // If the menu item already has a document
+    // then the page has already been loaded so just return
+    if (feature.getDocument(menuItem)) { return; }
     
     var req = new XMLHttpRequest();
-    var jsonURL = "http://movietrailers.apple.com/trailers/home/feeds/just_added.json"
-    var loadingDoc = makeSpinnerPage("Loading Just Added...");
+    var jsonURL = "http://movietrailers.apple.com/trailers/home/feeds/" + section + ".json"
+    var loadingDoc = makeSpinnerPage("Loading...");
     feature.setDocument(loadingDoc, menuItem);
     
+    if (section == "just_added") { section = "Just Added"; }
+    if (section == "exclusive") { section = "Exclusive"; }
+    if (section == "most_pop") { section = "Most Popular"; }
+
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
-            justAddedJSON = JSON.parse(req.responseText);
-            var justAdded = buildJustAddedPage(justAddedJSON); // Create Main page
-            feature.setDocument(justAdded, menuItem);
+            json = JSON.parse(req.responseText);
+            var page = buildPage(json, section); // Create Main page
+            feature.setDocument(page, menuItem);
         }
     }
     req.open("GET", jsonURL, true);
